@@ -103,6 +103,10 @@ def set_model(opt):
     model = SupResNet(name=opt.model, num_classes=get_label_dim(opt.dataset))
     if opt.loss in ['FAR', 'FAR-EXP']:
         criterion = FAR(alpha=opt.alpha, version=opt.loss)
+    elif opt.loss in ['MSE']:
+        criterion = torch.nn.MSELoss()
+    elif opt.loss in ['Huber']:
+        criterion = torch.nn.HuberLoss(delta=opt.alpha)
     else:
         criterion = torch.nn.L1Loss()
 
@@ -139,8 +143,8 @@ def train(train_loader, model, criterion, optimizer, epoch, opt):
             loss = criterion(output, labels) + opt.alpha*ConR(feat, labels, output)
         elif opt.loss == 'ranksim':
             loss = criterion(output, labels) + batchwise_ranking_regularizer(feat, labels, opt.alpha)
-        elif opt.loss == 'focal-l1':
-            loss = weighted_focal_l1_loss(output, labels, beta=opt.alpha)
+        elif opt.loss == 'focal-mae':
+            loss = weighted_focal_mae_loss(output, labels, beta=opt.alpha)
         elif opt.loss == 'focal-mse':
             loss = weighted_focal_mse_loss(output, labels, beta=opt.alpha)
         else:

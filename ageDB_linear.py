@@ -38,7 +38,7 @@ def parse_option():
     parser.add_argument('--resume', type=str, default='', help='resume ckpt path')
     parser.add_argument('--aug', type=str, default='crop,flip,color,grayscale', help='augmentations')
 
-    parser.add_argument('--ckpt', type=str, default='', help='path to the trained encoder')
+    parser.add_argument('--ckpt', type=str, default='save/AgeDB_models/RnC_AgeDB_resnet18_ep_400_lr_0.5_d_0.1_wd_0.0001_mmt_0.9_bsz_256_aug_crop,flip,color,grayscale_temp_2_label_l1_feature_l2_trial_0/last.pth', help='path to the trained encoder')
 
     opt = parser.parse_args()
 
@@ -94,11 +94,11 @@ def set_loader(opt):
 
 def set_model(opt):
     model = Encoder(name=opt.model)
-    if opt.loss in ['l1','focal-l1','focal-mse']:
+    if opt.loss in ['MAE','focal-mae','focal-mse']:
         criterion = torch.nn.L1Loss()
     elif opt.loss in ['MSE']:
         criterion = torch.nn.MSELoss()
-    elif opt.loss in ['huber']:
+    elif opt.loss in ['Huber']:
         criterion = torch.nn.HuberLoss(delta=opt.alpha)
     elif opt.loss in ['FAR', 'FAR-EXP']:
         criterion = FAR(alpha=opt.alpha, version=opt.loss)
@@ -148,7 +148,7 @@ def train(train_loader, model, regressor, criterion, optimizer, epoch, opt):
             features = model(images)
 
         output = regressor(features.detach())
-        if opt.loss == 'focal-l1':
+        if opt.loss == 'focal-mae':
             loss = weighted_focal_l1_loss(output, labels, beta=opt.alpha)
         elif opt.loss == 'focal-mse':
             loss = weighted_focal_mse_loss(output, labels, beta=opt.alpha)
