@@ -20,7 +20,7 @@ def parse_option():
     parser.add_argument('--save_freq', type=int, default=100, help='save frequency')
     parser.add_argument('--save_curr_freq', type=int, default=1, help='save curr last frequency')
 
-    parser.add_argument('--batch_size', type=int, default=256, help='batch_size')
+    parser.add_argument('--batch_size', type=int, default=128, help='batch_size')
     parser.add_argument('--num_workers', type=int, default=1, help='num of workers to use')
     parser.add_argument('--epochs', type=int, default=400, help='number of training epochs')
     parser.add_argument('--learning_rate', type=float, default=0.2, help='learning rate')
@@ -73,12 +73,12 @@ def set_loader(opt):
     print(f"Train Transforms: {train_transform}")
     print(f"Val Transforms: {val_transform}")
 
-    train_dataset = globals()[opt.dataset](data_folder=opt.data_folder, transform=train_transform, split='train')
-    #train_dataset = globals()[opt.dataset](
-    #    data_folder=opt.data_folder,
-    #    transform=TwoCropTransform(train_transform),
-    #    split='train'
-    #)
+    #train_dataset = globals()[opt.dataset](data_folder=opt.data_folder, transform=train_transform, split='train')
+    train_dataset = globals()[opt.dataset](
+        data_folder=opt.data_folder,
+        transform=TwoCropTransform(train_transform),
+        split='train'
+    )
     val_dataset = globals()[opt.dataset](data_folder=opt.data_folder, transform=val_transform, split='val')
     test_dataset = globals()[opt.dataset](data_folder=opt.data_folder, transform=val_transform, split='test')
 
@@ -132,8 +132,8 @@ def train(train_loader, model, criterion, optimizer, epoch, opt):
         data_time.update(time.time() - end)
         bsz = labels.shape[0]
 
-        # images = torch.cat([images[0], images[1]], dim=0)
-        # labels = labels.repeat(2, 1)  # [2bs, label_dim]
+        images = torch.cat([images[0], images[1]], dim=0)
+        labels = labels.repeat(2, 1)  # [2bs, label_dim]
         if torch.cuda.is_available():
             images = images.cuda(non_blocking=True)
             labels = labels.cuda(non_blocking=True)
