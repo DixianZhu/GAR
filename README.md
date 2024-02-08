@@ -16,3 +16,11 @@ Make sure you have AgeDB data and pass it to the code by '--data_folder'.
 
 ## Synthetic Experiments:
 Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squared Sine) datasets.
+
+<p align="center">
+  <img src="figures/sin_all_mean_cmp.pdf" width="800" title="Sine">
+</p>
+
+<p align="center">
+  <img src="figures/sq_sin_all_mean_cmp.pdf" width="800" title="Squared Sine">
+</p>
