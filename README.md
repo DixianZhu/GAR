@@ -1,5 +1,5 @@
 # FAR (Pre-published Version, Internal-Use only)
-Function Aligned Regression
+Function Aligned Regression.
 
 FAR motivated by the idea that Regression loss function should not only learns the function value but also function derivatives. The conventional regression loss only focuses on function values.
 
@@ -26,3 +26,14 @@ Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squar
 <p align="center">
   <img src="figures/sq_sin_all_mean_cmp.jpg" width="800" title="Squared Sine">
 </p>
+
+:page_with_curl: Citation
+---------
+If you find FAR useful in your work, please cite the following paper:
+```
+@misc{zhu2024function,
+      title={Function Aligned Regression: A Method Explicitly Learns Functional Derivatives from Data.},
+      author={Dixian Zhu, Livnat Jerby-Arnon},
+      year={2024}
+	}
+```
