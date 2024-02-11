@@ -3,11 +3,12 @@ Function Aligned Regression.
 
 FAR motivated by the idea that Regression loss function should not only learns the function value but also function derivatives. The conventional regression loss only focuses on function values.
 
+Prerequisite: torch==2.0.0 
 
 ## Common usage examples:
 ### On tabular datasets:
-python3 main.py --loss=FAR --dataset=wine_quality --lr=1e-2 --decay=1e-4
-python3 main.py --loss=MAE --dataset=wine_quality --lr=1e-2 --decay=1e-4
+- python3 main.py --loss=FAR --dataset=wine_quality --lr=1e-2 --decay=1e-4
+- python3 main.py --loss=MAE --dataset=wine_quality --lr=1e-2 --decay=1e-4
 
 ### On Image dataset (AgeDB Scratch or Linear Probe Based on RNC):
 Make sure you have AgeDB data and pass it to the code by '--data_folder'.
