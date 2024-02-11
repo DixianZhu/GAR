@@ -17,7 +17,9 @@ Make sure you have AgeDB data and pass it to the code by '--data_folder'.
 We thank the <a href="https://github.com/kaiwenzha/Rank-N-Contrast">previous work</a> that provides general experimental settings for AgeDB.
 
 ## Synthetic Experiments:
-Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squared Sine) datasets.
+Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squared Sine) datasets. 
+
+Alternatively, there are google colab files for <a href="https://colab.research.google.com/drive/1czRNpSGAkQtFksK0JmToQLa0_csmfBmC?usp=drive_link">sine dataset</a> and <a href="https://colab.research.google.com/drive/1XeGWBWLs05mHzD67GItn47l-lB_7V-bb?usp=drive_link">squared sine dataset</a>. Please make sure upload FAR related code (loss.py, models.py, utils.py) and synthetic data (sine.npz, sq_sine.npz) to colab folder.
 
 <p align="center">
   <img src="figures/sin_all_mean_cmp.jpg" width="800" title="Sine">
