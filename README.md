@@ -46,6 +46,8 @@ Alternatively, there are google colab files for <a href="https://colab.research.
   <img src="figures/sq_sin_APearson.jpg" width="400" title="Squared Sine">
   <img src="figures/sq_sin_FAR.jpg" width="400" title="Squared Sine">
 </p>
+
+
 :page_with_curl: Citation
 ---------
 If you find FAR useful in your work, please cite the following paper:
