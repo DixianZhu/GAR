@@ -54,8 +54,11 @@ Alternatively, there are google colab files for <a href="https://colab.research.
 If you find FAR useful in your work, please cite the following paper:
 ```
 @misc{zhu2024function,
-      title={Function Aligned Regression: A Method Explicitly Learns Functional Derivatives from Data.},
-      author={Dixian Zhu, Livnat Jerby-Arnon},
-      year={2024}
-     }
+      title={Function Aligned Regression: A Method Explicitly Learns Functional Derivatives from Data}, 
+      author={Dixian Zhu and Livnat Jerby-Arnon},
+      year={2024},
+      eprint={2402.06104},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
 ```
