@@ -203,7 +203,7 @@ def wine_quality(path='./data/wine_quality.npz', std_flag=True):
 
 
 
-def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False):
+def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_flag=False):
   dat=np.load(path,allow_pickle=True)
   X = dat['X']
   mainX = X[:,:966]
@@ -223,6 +223,8 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False):
   #X = pca.transform(X)
   #X = (X - X.mean(axis=0))/np.maximum(X.std(axis=0), 1e-10)
   Y = dat['Y']
+  if std_flag:
+    Y = (Y-Y.mean())/Y.std()
   ids = dat['ids']
   teN = int(0.2*X.shape[0])
   te_ids = ids[:teN]

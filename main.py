@@ -51,7 +51,7 @@ part = 0
 print ('Start Training')
 print ('-'*30)
 paraset = [0.1, 0.5, 0.9]
-if args.loss in ['Huber', 'focal-MAE', 'focal-MAE']:
+if args.loss in ['Huber', 'focal-MAE', 'focal-MSE']:
   paraset = [0.25,1,4]
 elif args.loss in ['MAE', 'MSE']:
   paraset = [0.1,0.5,0.9] # dummy repeats
@@ -137,7 +137,7 @@ for train_id, val_id in kf.split(tmpX):
           loss.backward()
           optimizer.step()
       scheduler.step()
-      epoch_loss /= idx
+      epoch_loss /= (idx+1)
       print('Epoch=%s, time=%.4f'%(epoch, time.time() - start_time))
       preds = np.concatenate(pred, axis=0)
       truths = np.concatenate(truth, axis=0)
