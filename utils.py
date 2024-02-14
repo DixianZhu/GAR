@@ -222,7 +222,7 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_f
   #pca.fit(X)
   #X = pca.transform(X)
   #X = (X - X.mean(axis=0))/np.maximum(X.std(axis=0), 1e-10)
-  Y = dat['Y']
+  Y = dat['Y'].astype(float)
   if std_flag:
     Y = (Y-Y.mean(axis=0))/Y.std(axis=0)
   ids = dat['ids']
