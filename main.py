@@ -113,7 +113,7 @@ for train_id, val_id in kf.split(tmpX):
             # bloss = basic_loss(pred_Y, tr_Y, alpha = (0.1+ratio)*para)
           else:
             bloss = basic_loss(pred_Y, tr_Y)
-          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MAE', 'FAR']:
+          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'FAR']:
             loss = bloss
           else:
             if args.loss in ['RNC']:
@@ -126,7 +126,7 @@ for train_id, val_id in kf.split(tmpX):
             loss += para*ConR(feat, tr_Y, pred_Y)
           elif args.loss == 'focal-MAE':
             loss = weighted_focal_mae_loss(pred_Y, tr_Y, beta = para)
-          elif args.loss == 'focal-MAE':
+          elif args.loss == 'focal-MSE':
             loss = weighted_focal_mse_loss(pred_Y, tr_Y, beta = para)
           elif args.loss == 'RNC':
             if epoch < milestones[0]:
