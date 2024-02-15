@@ -104,9 +104,7 @@ for train_id, val_id in kf.split(tmpX):
           pred_Y, feat = model(tr_X)
           pred.append(pred_Y.cpu().detach().numpy())
           truth.append(tr_Y.cpu().detach().numpy())
-          if args.loss in ['far']:
-            bloss = basic_loss(pred_Y.mean(), tr_Y.mean())
-          elif args.loss in ['FAR']:
+          if args.loss in ['FAR']:
             ratio = epoch/float(epochs)
             bloss = basic_loss(pred_Y, tr_Y)
             # Potentially can utilize adaptive alpha for FAR. We didn't use it in our experiments.
@@ -123,7 +121,10 @@ for train_id, val_id in kf.split(tmpX):
           if args.loss == 'ranksim':
             loss += 100*batchwise_ranking_regularizer(feat, tr_Y, para)
           elif args.loss == 'ConR':
-            loss += para*ConR(feat, tr_Y, pred_Y)
+            if args.dataset in ['IC50']:
+              loss += para*ConR_extend(feat, tr_Y, pred_Y)
+            else:
+              loss += para*ConR(feat, tr_Y, pred_Y)
           elif args.loss == 'focal-MAE':
             loss = weighted_focal_mae_loss(pred_Y, tr_Y, beta = para)
           elif args.loss == 'focal-MSE':
