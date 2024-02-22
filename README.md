@@ -7,13 +7,13 @@ Prerequisite: torch==2.0.0
 
 ## Common usage examples:
 ### On tabular datasets:
-- python3 main.py --loss=FAR --dataset=wine_quality --lr=1e-2 --decay=1e-4
-- python3 main.py --loss=MAE --dataset=wine_quality --lr=1e-2 --decay=1e-4
+- <code> python3 main.py --loss=FAR --dataset=wine_quality --lr=1e-2 --decay=1e-4 </code>
+- <code> python3 main.py --loss=MAE --dataset=wine_quality --lr=1e-2 --decay=1e-4 </code>
 
 ### On Image dataset (AgeDB Scratch or Linear Probe Based on RNC):
 Make sure you have AgeDB data and pass it to the code by '--data_folder'.
-- From scratch:  python3 ageDB_scratch.py --alpha=0.1 --learning_rate=0.5 --weight_decay=1e-4 --loss=FAR --data_folder='your-AgeDB-folder'
-- Linear probe:  python3 ageDB_linear.py --alpha=0.1 --learning_rate=0.05 --weight_decay=1e-4 --loss=FAR --data_folder='your-AgeDB-folder' --ckpt='path-to-pretrained-model'
+- From scratch:  <code> python3 ageDB_scratch.py --alpha=0.1 --learning_rate=0.5 --weight_decay=1e-4 --loss=FAR --data_folder='your-AgeDB-folder' </code>
+- Linear probe:  <code> python3 ageDB_linear.py --alpha=0.1 --learning_rate=0.05 --weight_decay=1e-4 --loss=FAR --data_folder='your-AgeDB-folder' --ckpt='path-to-pretrained-model' </code>
 
 We thank the <a href="https://github.com/kaiwenzha/Rank-N-Contrast">previous work</a> that provides general experimental settings for AgeDB.
 
