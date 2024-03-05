@@ -6,6 +6,22 @@ FAR motivated by the idea that Regression loss function should not only learns t
 Prerequisite: torch==2.0.0 
 
 ## Common usage examples:
+### Easy to apply on your own code:
+
+```python
+from loss import FAR
+
+# define loss function with alpha hyper-parameter.
+criterion = FAR(alpha=0.2)
+
+# ground truths: [bs, label_dim]
+truths = ...
+# predictions: [bs, label_dim]
+preds = ...
+
+# compute FAR loss
+loss = criterion(preds, truths)
+```
 ### On tabular datasets:
 - <code> python3 main.py --loss=FAR --dataset=wine_quality --lr=1e-2 --decay=1e-4 </code>
 - <code> python3 main.py --loss=MAE --dataset=wine_quality --lr=1e-2 --decay=1e-4 </code>
