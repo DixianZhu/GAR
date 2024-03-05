@@ -55,7 +55,7 @@ If you find FAR useful in your work, please cite the following paper:
 ```
 @misc{zhu2024function,
       title={Function Aligned Regression: A Method Explicitly Learns Functional Derivatives from Data}, 
-      author={Dixian Zhu and Livnat Jerby-Arnon},
+      author={Dixian Zhu and Livnat Jerby},
       year={2024},
       eprint={2402.06104},
       archivePrefix={arXiv},
