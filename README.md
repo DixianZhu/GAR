@@ -1,5 +1,5 @@
 # FAR 
-Function Aligned Regression.
+Function Aligned Regression <a href="https://arxiv.org/pdf/2402.06104.pdf">[arxiv paper]</a>.
 
 FAR motivated by the idea that Regression loss function should not only learns the function value but also function derivatives. The conventional regression loss only focuses on function values.
 
