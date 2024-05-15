@@ -128,7 +128,7 @@ class pair_dataset(torch.utils.data.Dataset):
   def __getitem__(self, idx):
     return self.X[idx], self.Y[idx]
 
-def abalone(path='./data/abalone.npz', std_flag=True):
+def abalone(path='./data/abalone.npz', std_flag=True, y_std_flag=False):
   try:
     dat = np.load(path)
     trX = dat['trX']
@@ -168,10 +168,14 @@ def abalone(path='./data/abalone.npz', std_flag=True):
       teX = (teX - mean)/std
     print('process abalone')
     np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
 
-def wine_quality(path='./data/wine_quality.npz', std_flag=True):
+def wine_quality(path='./data/wine_quality.npz', std_flag=True, y_std_flag=False):
   try:
     dat = np.load(path)
     trX = dat['trX']
@@ -197,13 +201,17 @@ def wine_quality(path='./data/wine_quality.npz', std_flag=True):
     teY = y[te_ids]
     print('process wine_quality')
     np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
 
 
 
 
-def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_flag=False):
+def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, y_std_flag=False):
   dat=np.load(path,allow_pickle=True)
   X = dat['X']
   mainX = X[:,:966]
@@ -223,8 +231,6 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_f
   #X = pca.transform(X)
   #X = (X - X.mean(axis=0))/np.maximum(X.std(axis=0), 1e-10)
   Y = dat['Y'].astype(float)
-  if std_flag:
-    Y = (Y-Y.mean(axis=0))/Y.std(axis=0)
   ids = dat['ids']
   teN = int(0.2*X.shape[0])
   te_ids = ids[:teN]
@@ -233,6 +239,10 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_f
   trY = Y[tr_ids]
   teX = X[te_ids]
   teY = Y[te_ids]
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
   print('process IC50 data')
   return trX, trY, teX, teY
 
@@ -253,7 +263,7 @@ def news(path='./data/news_pop_std.npz'):
   return trX, trY, teX, teY
 
 
-def parkinson(path='./data/parkinson.npz', target='motor'):
+def parkinson(path='./data/parkinson.npz', target='motor', y_std_flag=False):
   dat=np.load(path)
   X = dat['X']
   y = dat['y']
@@ -271,8 +281,34 @@ def parkinson(path='./data/parkinson.npz', target='motor'):
   teX = X[te_ids]
   teY = y[te_ids]
   print('process parkinsone data')
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
+
+def supercon(path='./data/supercon.arff', y_std_flag=False):
+  data = arff.loadarff(path)
+  df = pd.DataFrame(data[0])
+  dat = df.to_numpy()
+  y = np.expand_dims(dat[:,-1], axis=1)
+  X = dat[:,:-1]
+  X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
+  ids = np.random.permutation(X.shape[0])
+  teN = int(0.2*X.shape[0])
+  te_ids = ids[:teN]
+  tr_ids = ids[teN:]
+  trX = X[tr_ids]
+  trY = y[tr_ids]
+  teX = X[te_ids]
+  teY = y[te_ids]
+  print('process supercon')
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
+  return trX, trY, teX, teY
 
 def blog(path='./data/blog.npz', log_trans=True):
   dat=np.load(path)
@@ -288,3 +324,17 @@ def blog(path='./data/blog.npz', log_trans=True):
     trY, teY = np.log(trY+1), np.log(teY+1)
   print('process blog data')
   return trX, trY, teX, teY
+
+def synthetic_data(path='./data/sine.npz'):
+  tmp = np.load(path)
+  X = tmp['X']
+  y = tmp['y']
+  ids = tmp['ids']
+  teN = int(0.5*X.shape[0])
+  te_ids = ids[:teN]
+  tr_ids = ids[teN:]
+  trX = X[tr_ids]
+  trY = y[tr_ids]
+  teX = X[te_ids]
+  teY = y[te_ids]
+  return X, trX, trY, teX, teY
