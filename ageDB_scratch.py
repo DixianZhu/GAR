@@ -27,9 +27,9 @@ def parse_option():
     parser.add_argument('--lr_decay_rate', type=float, default=0.1, help='decay rate for learning rate')
     parser.add_argument('--weight_decay', type=float, default=1e-4, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
-    parser.add_argument('--alpha', type=float, default=1.0, help='alpha parameter for FAR')
+    parser.add_argument('--alpha', type=float, default=1.0, help='alpha parameter for GAR')
     parser.add_argument('--trial', type=str, default='0', help='id for recording multiple runs')
-    parser.add_argument('--loss', type=str, default='FAR', help='loss type')
+    parser.add_argument('--loss', type=str, default='GAR', help='loss type')
 
     parser.add_argument('--data_folder', type=str, default='../Rank-N-Contrast/data', help='path to custom dataset')
     parser.add_argument('--dataset', type=str, default='AgeDB', choices=['AgeDB'], help='dataset')
@@ -101,8 +101,8 @@ def set_loader(opt):
 
 def set_model(opt):
     model = SupResNet(name=opt.model, num_classes=get_label_dim(opt.dataset))
-    if opt.loss in ['FAR', 'FAR-EXP']:
-        criterion = FAR(alpha=opt.alpha, version=opt.loss)
+    if opt.loss in ['GAR', 'GAR-EXP']:
+        criterion = GAR(alpha=opt.alpha, version=opt.loss)
     elif opt.loss in ['MSE']:
         criterion = torch.nn.MSELoss()
     elif opt.loss in ['Huber']:

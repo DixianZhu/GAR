@@ -208,6 +208,105 @@ def wine_quality(path='./data/wine_quality.npz', std_flag=True, y_std_flag=False
   return trX, trY, teX, teY
 
 
+def PM25(path='./data/PM25.npz', std_flag=True, y_std_flag=False):
+  try:
+    dat = np.load(path)
+    trX = dat['trX']
+    trY = dat['trY']
+    teX = dat['teX']
+    teY = dat['teY']
+    print('load CCS')
+  except:
+    ccs = fetch_ucirepo(id=381)
+    X = ccs.data.features 
+    y = ccs.data.targets 
+    X = X.to_numpy()[:, 1:]
+    y = y.to_numpy()
+    if std_flag:
+      X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
+    ids = np.random.permutation(X.shape[0])
+    teN = int(0.2*X.shape[0])
+    te_ids = ids[:teN]
+    tr_ids = ids[teN:]
+    trX = X[tr_ids]
+    trY = y[tr_ids]
+    teX = X[te_ids]
+    teY = y[te_ids]
+    print('process CCS')
+    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
+  return trX, trY, teX, teY
+
+
+
+def CCS(path='./data/CCS.npz', std_flag=True, y_std_flag=False):
+  try:
+    dat = np.load(path)
+    trX = dat['trX']
+    trY = dat['trY']
+    teX = dat['teX']
+    teY = dat['teY']
+    print('load CCS')
+  except:
+    ccs = fetch_ucirepo(id=165)
+    X = ccs.data.features 
+    y = ccs.data.targets 
+    X = X.to_numpy()
+    y = y.to_numpy()
+    if std_flag:
+      X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
+    ids = np.random.permutation(X.shape[0])
+    teN = int(0.2*X.shape[0])
+    te_ids = ids[:teN]
+    tr_ids = ids[teN:]
+    trX = X[tr_ids]
+    trY = y[tr_ids]
+    teX = X[te_ids]
+    teY = y[te_ids]
+    print('process CCS')
+    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
+  return trX, trY, teX, teY
+
+
+
+def CCPR(path='./data/CCPR.npz', std_flag=True, y_std_flag=False):
+  try:
+    dat = np.load(path)
+    trX = dat['trX']
+    trY = dat['trY']
+    teX = dat['teX']
+    teY = dat['teY']
+    print('load CCPR')
+  except:
+    ccs = fetch_ucirepo(id=294)
+    X = ccs.data.features 
+    y = ccs.data.targets 
+    X = X.to_numpy()
+    y = y.to_numpy()
+    if std_flag:
+      X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
+    ids = np.random.permutation(X.shape[0])
+    teN = int(0.2*X.shape[0])
+    te_ids = ids[:teN]
+    tr_ids = ids[teN:]
+    trX = X[tr_ids]
+    trY = y[tr_ids]
+    teX = X[te_ids]
+    teY = y[te_ids]
+    print('process CCS')
+    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
+  return trX, trY, teX, teY
 
 
 
@@ -247,11 +346,12 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, y_std
   return trX, trY, teX, teY
 
 
-def news(path='./data/news_pop_std.npz'):
+def MITV(path='./data/MITV.npz', y_std_flag=False):
   dat=np.load(path)
-  X = dat['X'] # news_pop_std.npz already standardized
-  y = np.log(np.expand_dims(dat['y'], axis=1)) # log transformed
-  ids = dat['ids']
+  X = dat['X']
+  y = dat['y']
+  X = (X - X.mean(axis=0))/X.std(axis=0)
+  ids = np.random.permutation(X.shape[0])
   teN = int(0.2*X.shape[0])
   te_ids = ids[:teN]
   tr_ids = ids[teN:]
@@ -259,7 +359,33 @@ def news(path='./data/news_pop_std.npz'):
   trY = y[tr_ids]
   teX = X[te_ids]
   teY = y[te_ids]
-  print('process news share data')
+  print('process MITV')
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
+  return trX, trY, teX, teY
+
+
+
+def PM25(path='./data/pm25.npz', y_std_flag=False):
+  dat=np.load(path)
+  X = dat['X']
+  y = dat['y']
+  X = (X - X.mean(axis=0))/X.std(axis=0)
+  ids = np.random.permutation(X.shape[0])
+  teN = int(0.2*X.shape[0])
+  te_ids = ids[:teN]
+  tr_ids = ids[teN:]
+  trX = X[tr_ids]
+  trY = y[tr_ids]
+  teX = X[te_ids]
+  teY = y[te_ids]
+  print('process PM25')
+  if y_std_flag:
+    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
+    trY = (trY - mY)/stdY
+    teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
 
@@ -310,20 +436,6 @@ def supercon(path='./data/supercon.arff', y_std_flag=False):
     teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
-def blog(path='./data/blog.npz', log_trans=True):
-  dat=np.load(path)
-  trX,trY,teX,teY = dat['trX'], dat['trY'], dat['teX'], dat['teY']
-  trY = np.expand_dims(trY, axis=1)
-  teY = np.expand_dims(teY, axis=1)
-  X = np.concatenate([trX, teX], axis=0)
-  mean = X.mean(axis=0)
-  std = np.maximum(X.std(axis=0),1e-10)
-  trX = (trX - mean)/std
-  teX = (teX - mean)/std
-  if log_trans:
-    trY, teY = np.log(trY+1), np.log(teY+1)
-  print('process blog data')
-  return trX, trY, teX, teY
 
 def synthetic_data(path='./data/sine.npz'):
   tmp = np.load(path)

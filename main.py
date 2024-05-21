@@ -7,8 +7,8 @@ import numpy as np
 from sklearn.model_selection import KFold
 import argparse
 from scipy import stats
-parser = argparse.ArgumentParser(description = 'FAR experiments')
-parser.add_argument('--loss', default='FAR', type=str, help='loss functions to use ()')
+parser = argparse.ArgumentParser(description = 'GAR experiments')
+parser.add_argument('--loss', default='GAR', type=str, help='loss functions to use ()')
 parser.add_argument('--dataset', default='wine_quality', type=str, help='the name for the dataset to use')
 parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum parameter for SGD optimizer')
@@ -28,6 +28,14 @@ if args.dataset == 'abalone':
   trX, trY, teX, teY = abalone()
 elif args.dataset == 'wine_quality':
   trX, trY, teX, teY = wine_quality()
+elif args.dataset == 'CCS':
+  trX, trY, teX, teY = CCS()
+elif args.dataset == 'CCPR':
+  trX, trY, teX, teY = CCPR()
+elif args.dataset == 'PM25':
+  trX, trY, teX, teY = PM25()
+elif args.dataset == 'MITV':
+  trX, trY, teX, teY = MITV()
 elif args.dataset == 'supercon':
   trX, trY, teX, teY = supercon()
 elif args.dataset == 'parkinson-motor':
@@ -37,7 +45,8 @@ elif args.dataset == 'parkinson-total':
 elif args.dataset == 'IC50':
   trX, trY, teX, teY = IC50(ge_flag = False)
   num_targets = 15
-
+print(trX.shape)
+print(teX.shape)
 tr_pair_data = pair_dataset(trX, trY)
 te_pair_data = pair_dataset(teX, teY)
 testloader = torch.utils.data.DataLoader(dataset=te_pair_data, batch_size=BATCH_SIZE, num_workers=1, shuffle=False, drop_last=False)
@@ -57,7 +66,7 @@ elif args.loss in ['MAE', 'MSE']:
   paraset = [0.1,0.5,0.9] # dummy repeats
 elif args.loss == 'ranksim':
   paraset = [0.5,1,2]
-elif args.loss in ['FAR']:
+elif args.loss in ['GAR', 'GAR-EXP']:
   paraset = [0.1, 1, 10]
 elif args.loss in ['RNC']:
   paraset = [1,2,4]
@@ -75,15 +84,15 @@ for train_id, val_id in kf.split(tmpX):
     trainloader = torch.utils.data.DataLoader(dataset=tmp_trainSet, batch_size=BATCH_SIZE, num_workers=1, shuffle=True, drop_last=True)
     validloader = torch.utils.data.DataLoader(dataset=tmp_valSet, batch_size=BATCH_SIZE, num_workers=1, shuffle=False, drop_last=False)
     basic_loss = torch.nn.L1Loss()
-    if args.dataset in ['abalone', 'wine_quality']:
+    if args.dataset in ['abalone', 'wine_quality', 'CCS', 'CCPR', 'PM25']:
       model = MLP(input_dim=trX.shape[-1], hidden_sizes=(16,32,16,8, ), num_classes=num_targets).to(device)
-    elif args.dataset in ['supercon', 'parkinson-motor', 'parkinson-total', 'IC50']:
+    elif args.dataset in ['supercon', 'parkinson-motor', 'parkinson-total', 'IC50', 'MITV']:
       model = MLP(input_dim=trX.shape[-1], hidden_sizes=(128,256,128,64, ), num_classes=num_targets).to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=decay)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
-    if args.loss in ['FAR']:
-      basic_loss = FAR(alpha=para,version=args.loss)
+    if args.loss in ['GAR', 'GAR-EXP']:
+      basic_loss = GAR(alpha=para,version=args.loss)
     elif args.loss in ['MSE']:
       basic_loss = torch.nn.MSELoss()
     elif args.loss == 'Huber':
@@ -104,14 +113,14 @@ for train_id, val_id in kf.split(tmpX):
           pred_Y, feat = model(tr_X)
           pred.append(pred_Y.cpu().detach().numpy())
           truth.append(tr_Y.cpu().detach().numpy())
-          if args.loss in ['FAR']:
+          if args.loss in ['GAR', 'GAR-EXP']:
             ratio = epoch/float(epochs)
             bloss = basic_loss(pred_Y, tr_Y)
-            # Potentially can utilize adaptive alpha for FAR. We didn't use it in our experiments.
+            # Potentially can utilize adaptive alpha for GAR. We didn't use it in our experiments.
             # bloss = basic_loss(pred_Y, tr_Y, alpha = (0.1+ratio)*para)
           else:
             bloss = basic_loss(pred_Y, tr_Y)
-          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'FAR']:
+          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'GAR', 'GAR-EXP']:
             loss = bloss
           else:
             if args.loss in ['RNC']:
