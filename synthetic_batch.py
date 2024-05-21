@@ -7,8 +7,8 @@ import numpy as np
 from sklearn.model_selection import KFold
 import argparse
 from scipy import stats
-parser = argparse.ArgumentParser(description = 'FAR experiments')
-parser.add_argument('--loss', default='FAR', type=str, help='loss functions to use ()')
+parser = argparse.ArgumentParser(description = 'GAR experiments')
+parser.add_argument('--loss', default='GAR', type=str, help='loss functions to use ()')
 parser.add_argument('--dataset', default='sin', type=str, help='the name for the dataset to use')
 parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum parameter for SGD optimizer')
@@ -64,7 +64,7 @@ elif args.loss in ['MAE', 'MSE']:
   paraset = [0.1,0.5,0.9] # dummy repeats
 elif args.loss == 'ranksim':
   paraset = [0.5,1,2]
-elif args.loss in ['FAR']:
+elif args.loss in ['GAR']:
   paraset = [0.5,1,2]
 elif args.loss in ['RNC']:
   paraset = [1,2,4]
@@ -86,8 +86,8 @@ for para in paraset:
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=decay)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
-    if args.loss in ['FAR']:
-      basic_loss = FAR(alpha=para,version=args.loss)
+    if args.loss in ['GAR']:
+      basic_loss = GAR(alpha=para,version=args.loss)
     elif args.loss in ['MSE']:
       basic_loss = torch.nn.MSELoss()
     elif args.loss == 'Huber':
@@ -110,14 +110,14 @@ for para in paraset:
           pred_Y, feat = model(tr_X)
           pred.append(pred_Y.cpu().detach().numpy())
           truth.append(tr_Y.cpu().detach().numpy())
-          if args.loss in ['FAR']:
+          if args.loss in ['GAR']:
             ratio = epoch/float(epochs)
             bloss = basic_loss(pred_Y, tr_Y)
-            # Potentially can utilize adaptive alpha for FAR. We didn't use it in our experiments.
+            # Potentially can utilize adaptive alpha for GAR. We didn't use it in our experiments.
             # bloss = basic_loss(pred_Y, tr_Y, alpha = (0.1+ratio)*para)
           else:
             bloss = basic_loss(pred_Y, tr_Y)
-          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'FAR']:
+          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'GAR']:
             loss = bloss
           else:
             if args.loss in ['RNC']:

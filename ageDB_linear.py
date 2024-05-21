@@ -29,8 +29,8 @@ def parse_option():
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay')
     parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
     parser.add_argument('--trial', type=str, default='0', help='id for recording multiple runs')
-    parser.add_argument('--loss', type=str, default='FAR', help='loss type')
-    parser.add_argument('--alpha', type=float, default=1.0, help='alpha parameter for FAR')
+    parser.add_argument('--loss', type=str, default='GAR', help='loss type')
+    parser.add_argument('--alpha', type=float, default=1.0, help='alpha parameter for GAR')
 
     parser.add_argument('--data_folder', type=str, default='../Rank-N-Contrast/data', help='path to custom dataset')
     parser.add_argument('--dataset', type=str, default='AgeDB', choices=['AgeDB'], help='dataset')
@@ -100,8 +100,8 @@ def set_model(opt):
         criterion = torch.nn.MSELoss()
     elif opt.loss in ['Huber']:
         criterion = torch.nn.HuberLoss(delta=opt.alpha)
-    elif opt.loss in ['FAR', 'FAR-EXP']:
-        criterion = FAR(alpha=opt.alpha, version=opt.loss)
+    elif opt.loss in ['GAR', 'GAR-EXP']:
+        criterion = GAR(alpha=opt.alpha, version=opt.loss)
 
     dim_in = model_dict[opt.model][1]
     dim_out = get_label_dim(opt.dataset)

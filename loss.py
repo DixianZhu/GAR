@@ -7,9 +7,9 @@ import torch.nn.functional as F
 import random
 eps = 1e-7
 
-#---------------Function Aligned Regression (FAR)-------------------------
-class FAR(torch.nn.Module):
-    def __init__(self, alpha=1.0, version='FAR', device = None):
+#---------------Gradient Aligned Regression (GAR)-------------------------
+class GAR(torch.nn.Module):
+    def __init__(self, alpha=1.0, version='GAR', device = None):
         super().__init__()
         if not device:
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -38,7 +38,7 @@ class FAR(torch.nn.Module):
             factor = 1.0
         aloss, bloss, closs = aloss/factor, bloss/factor, closs/factor
         loss = (aloss**(1/self.alpha) + bloss**(1/self.alpha) + closs**(1/self.alpha))/3
-        if self.version == 'FAR-EXP':
+        if self.version == 'GAR-EXP':
           loss = factor*(loss**self.alpha)
         else:
           loss = loss.log()*self.alpha

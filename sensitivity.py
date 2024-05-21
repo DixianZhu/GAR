@@ -1,72 +1,20 @@
 import time
+from loss import *
 from models import MLP
 from utils import *
 import torch 
-import torch.nn as nn
-import torch.nn.functional as F
-import random
-eps = 1e-7
 import numpy as np
 from sklearn.model_selection import KFold
 import argparse
 from scipy import stats
 parser = argparse.ArgumentParser(description = 'GAR experiments')
-parser.add_argument('--loss', default='a+b+c', type=str, help='loss functions to use ()')
+parser.add_argument('--loss', default='GAR', type=str, help='loss functions to use ()')
 parser.add_argument('--dataset', default='wine_quality', type=str, help='the name for the dataset to use')
 parser.add_argument('--lr', default=0.01, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum parameter for SGD optimizer')
 parser.add_argument('--decay', default=1e-4, type=float, help='weight decay for training the model')
 parser.add_argument('--batch_size', default=256, type=int, help='training batch size')
 
-
-#---------------Function Aligned Regression (GAR)-------------------------
-class GAR(torch.nn.Module):
-    def __init__(self, alpha=1.0, version='a+b+c', device = None):
-        super().__init__()
-        if not device:
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        else:
-            self.device = device
-        self.alpha = alpha
-        self.basic_loss = nn.L1Loss()
-        self.version = version
-
-    def forward(self, y_pred, y_truth, alpha = None):
-        if alpha is not None:
-            self.alpha = alpha
-        pred_std, truth_std = torch.clip(y_pred.std(axis=0), min=eps), torch.clip(y_truth.std(axis=0), min=eps)
-        pred_mean, truth_mean = y_pred.mean(axis=0), y_truth.mean(axis=0)
-        loss_pearson = ((y_pred-pred_mean)/pred_std - (y_truth-truth_mean)/truth_std)**2/2
-        diff = (y_pred-pred_mean) - (y_truth-truth_mean)
-        loss_cov = diff**2/2
-        bloss = self.basic_loss(y_pred, y_truth)+eps
-        aloss = loss_pearson.mean()+eps
-        closs = loss_cov.mean()+eps
-        if self.alpha > 1.0:
-            factor = min([aloss, bloss, closs]).detach()
-        elif self.alpha < 1.0:
-            factor = max([aloss, bloss, closs]).detach()
-        else:
-            factor = 1.0
-        aloss, bloss, closs = aloss/factor, bloss/factor, closs/factor
-        if self.version == 'a+b+c':
-          loss = (aloss**(1/self.alpha) + bloss**(1/self.alpha) + closs**(1/self.alpha))/3
-        elif self.version == 'a':
-          loss = aloss**(1/self.alpha)
-        elif self.version == 'b':
-          loss = bloss**(1/self.alpha)
-        elif self.version == 'c':
-          loss = closs**(1/self.alpha)
-        elif self.version == 'a+b':
-          loss = (aloss**(1/self.alpha) + bloss**(1/self.alpha))/2
-        elif self.version == 'a+c':
-          loss = (aloss**(1/self.alpha) + closs**(1/self.alpha))/2
-        elif self.version == 'b+c':
-          loss = (bloss**(1/self.alpha) + closs**(1/self.alpha))/2
-        loss = loss.log()*self.alpha
-        return loss
-
- 
 # paramaters
 args = parser.parse_args()
 SEED = 123
@@ -99,7 +47,6 @@ elif args.dataset == 'IC50':
   num_targets = 15
 print(trX.shape)
 print(teX.shape)
-
 tr_pair_data = pair_dataset(trX, trY)
 te_pair_data = pair_dataset(teX, teY)
 testloader = torch.utils.data.DataLoader(dataset=te_pair_data, batch_size=BATCH_SIZE, num_workers=1, shuffle=False, drop_last=False)
@@ -112,7 +59,19 @@ tmpX = np.zeros((trY.shape[0],1))
 part = 0
 print ('Start Training')
 print ('-'*30)
-paraset = [0.1, 1, 10]
+paraset = [0.1, 0.5, 0.9]
+if args.loss in ['Huber', 'focal-MAE', 'focal-MSE']:
+  paraset = [0.25,1,4]
+elif args.loss in ['MAE', 'MSE']:
+  paraset = [0.1,0.5,0.9] # dummy repeats
+elif args.loss == 'ranksim':
+  paraset = [0.5,1,2]
+elif args.loss in ['GAR', 'GAR-EXP']:
+  paraset = [0.2, 0.25, 0.4, 0.5, 0.8, 1.25, 2, 2.5, 4, 5]
+elif args.loss in ['RNC']:
+  paraset = [1,2,4]
+elif args.loss in ['ConR']:
+  paraset = [0.2,1,4]
 
 device = 'cpu' 
 # can use gpu if it is faster for you:
@@ -132,7 +91,15 @@ for train_id, val_id in kf.split(tmpX):
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=decay)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=0.1)
     
-    basic_loss = GAR(alpha=para, version=args.loss)
+    if args.loss in ['GAR', 'GAR-EXP']:
+      basic_loss = GAR(alpha=para,version=args.loss)
+    elif args.loss in ['MSE']:
+      basic_loss = torch.nn.MSELoss()
+    elif args.loss == 'Huber':
+      basic_loss = torch.nn.HuberLoss(delta=para)
+    elif args.loss == 'RNC':
+      add_loss = RnCLoss(temperature=para)
+
 
     print('para=%s, part=%s'%(para, part))
     for epoch in range(epochs): # could customize the running epochs
@@ -146,10 +113,36 @@ for train_id, val_id in kf.split(tmpX):
           pred_Y, feat = model(tr_X)
           pred.append(pred_Y.cpu().detach().numpy())
           truth.append(tr_Y.cpu().detach().numpy())
-          ratio = epoch/float(epochs)
-          loss = basic_loss(pred_Y, tr_Y)
-          # Potentially can utilize adaptive alpha for GAR. We didn't use it in our experiments.
-          # bloss = basic_loss(pred_Y, tr_Y, alpha = (0.1+ratio)*para)
+          if args.loss in ['GAR', 'GAR-EXP']:
+            ratio = epoch/float(epochs)
+            bloss = basic_loss(pred_Y, tr_Y)
+            # Potentially can utilize adaptive alpha for GAR. We didn't use it in our experiments.
+            # bloss = basic_loss(pred_Y, tr_Y, alpha = (0.1+ratio)*para)
+          else:
+            bloss = basic_loss(pred_Y, tr_Y)
+          if args.loss in ['MAE', 'MSE', 'Huber', 'ranksim', 'focal-MAE', 'focal-MSE', 'ConR', 'GAR', 'GAR-EXP']:
+            loss = bloss
+          else:
+            if args.loss in ['RNC']:
+              aloss = add_loss(feat, tr_Y)
+            else:
+              aloss = add_loss(pred_Y, tr_Y)
+          if args.loss == 'ranksim':
+            loss += 100*batchwise_ranking_regularizer(feat, tr_Y, para)
+          elif args.loss == 'ConR':
+            if args.dataset in ['IC50']:
+              loss += para*ConR_extend(feat, tr_Y, pred_Y)
+            else:
+              loss += para*ConR(feat, tr_Y, pred_Y)
+          elif args.loss == 'focal-MAE':
+            loss = weighted_focal_mae_loss(pred_Y, tr_Y, beta = para)
+          elif args.loss == 'focal-MSE':
+            loss = weighted_focal_mse_loss(pred_Y, tr_Y, beta = para)
+          elif args.loss == 'RNC':
+            if epoch < milestones[0]:
+              loss = aloss
+            else:
+              loss = bloss
           epoch_loss += loss.cpu().detach().numpy()
           loss.backward()
           optimizer.step()
