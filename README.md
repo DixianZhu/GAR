@@ -36,4 +36,5 @@ We thank the <a href="https://github.com/kaiwenzha/Rank-N-Contrast">previous wor
 ## Synthetic Experiments:
 Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squared Sine) datasets. 
 
-
+## Analysis Code:
+Please check GAR_analysis.ipynb for how to summarize raw output results to the tables and figures reported in the manuscript.
