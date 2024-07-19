@@ -9,17 +9,17 @@ Prerequisite: torch==2.0.0
 ### Easy to apply on your own code:
 
 ```python
-from loss import FAR
+from loss import GAR
 
 # define loss function with alpha hyper-parameter.
-criterion = FAR(alpha=0.2)
+criterion = GAR(alpha=0.2)
 
 # ground truths: [bs, label_dim]
 truths = ...
 # predictions: [bs, label_dim]
 preds = ...
 
-# compute FAR loss
+# compute GAR loss
 loss = criterion(preds, truths)
 ```
 ### On tabular datasets:
