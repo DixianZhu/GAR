@@ -128,51 +128,7 @@ class pair_dataset(torch.utils.data.Dataset):
   def __getitem__(self, idx):
     return self.X[idx], self.Y[idx]
 
-def abalone(path='./data/abalone.npz', std_flag=True, y_std_flag=False):
-  try:
-    dat = np.load(path)
-    trX = dat['trX']
-    trY = dat['trY']
-    teX = dat['teX']
-    teY = dat['teY']
-    print('load abalone')
-  except:
-    abalone = fetch_ucirepo(id=1) 
-    X = abalone.data.features 
-    y = abalone.data.targets
-    X = X.to_numpy()
-    y = y.to_numpy()
-    sex_code = []
-    for i in range(X.shape[0]):
-        if X[i,0] == 'M':
-            sex_code.append(np.array([[1,0,0]]))
-        elif X[i,0] == 'F':
-            sex_code.append(np.array([[0,1,0]]))
-        elif X[i,0] == 'I':
-            sex_code.append(np.array([[0,0,1]]))
-    sex_code = np.concatenate(sex_code, axis=0)
-    X = np.concatenate([sex_code, X[:,1:]],axis=-1).astype(float)
-    ids = np.random.permutation(X.shape[0])
-    teN = int(0.2*X.shape[0])
-    te_ids = ids[:teN]
-    tr_ids = ids[teN:]
-    trX = X[tr_ids]
-    trY = y[tr_ids]
-    teX = X[te_ids]
-    teY = y[te_ids]
-    if std_flag:
-      X = np.concatenate([trX, teX], axis=0)
-      mean = X.mean(axis=0)
-      std = np.maximum(X.std(axis=0),1e-10)
-      trX = (trX - mean)/std
-      teX = (teX - mean)/std
-    print('process abalone')
-    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
-  if y_std_flag:
-    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
-    trY = (trY - mY)/stdY
-    teY = (teY - mY)/stdY
-  return trX, trY, teX, teY
+
 
 
 def wine_quality(path='./data/wine_quality.npz', std_flag=True, y_std_flag=False):
@@ -207,38 +163,6 @@ def wine_quality(path='./data/wine_quality.npz', std_flag=True, y_std_flag=False
     teY = (teY - mY)/stdY
   return trX, trY, teX, teY
 
-
-def PM25(path='./data/PM25.npz', std_flag=True, y_std_flag=False):
-  try:
-    dat = np.load(path)
-    trX = dat['trX']
-    trY = dat['trY']
-    teX = dat['teX']
-    teY = dat['teY']
-    print('load CCS')
-  except:
-    ccs = fetch_ucirepo(id=381)
-    X = ccs.data.features 
-    y = ccs.data.targets 
-    X = X.to_numpy()[:, 1:]
-    y = y.to_numpy()
-    if std_flag:
-      X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
-    ids = np.random.permutation(X.shape[0])
-    teN = int(0.2*X.shape[0])
-    te_ids = ids[:teN]
-    tr_ids = ids[teN:]
-    trX = X[tr_ids]
-    trY = y[tr_ids]
-    teX = X[te_ids]
-    teY = y[te_ids]
-    print('process CCS')
-    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
-  if y_std_flag:
-    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
-    trY = (trY - mY)/stdY
-    teY = (teY - mY)/stdY
-  return trX, trY, teX, teY
 
 
 
@@ -276,41 +200,9 @@ def CCS(path='./data/CCS.npz', std_flag=True, y_std_flag=False):
 
 
 
-def CCPR(path='./data/CCPR.npz', std_flag=True, y_std_flag=False):
-  try:
-    dat = np.load(path)
-    trX = dat['trX']
-    trY = dat['trY']
-    teX = dat['teX']
-    teY = dat['teY']
-    print('load CCPR')
-  except:
-    ccs = fetch_ucirepo(id=294)
-    X = ccs.data.features 
-    y = ccs.data.targets 
-    X = X.to_numpy()
-    y = y.to_numpy()
-    if std_flag:
-      X = (X - X.mean(axis=0))/X.std(axis=0) # standardization
-    ids = np.random.permutation(X.shape[0])
-    teN = int(0.2*X.shape[0])
-    te_ids = ids[:teN]
-    tr_ids = ids[teN:]
-    trX = X[tr_ids]
-    trY = y[tr_ids]
-    teX = X[te_ids]
-    teY = y[te_ids]
-    print('process CCS')
-    np.savez(path, trX=trX, trY=trY, teX=teX, teY=teY)
-  if y_std_flag:
-    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
-    trY = (trY - mY)/stdY
-    teY = (teY - mY)/stdY
-  return trX, trY, teX, teY
 
 
-
-def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, y_std_flag=False):
+def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, std_flag=False, y_std_flag=False):
   dat=np.load(path,allow_pickle=True)
   X = dat['X']
   mainX = X[:,:966]
@@ -326,6 +218,8 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, y_std
     #X = pca.transform(X)
   else:
     X = mainX
+  if std_flag:
+    X = (X - X.mean(axis=0))/np.maximum(X.std(axis=0),1e-7)
   #pca.fit(X)
   #X = pca.transform(X)
   #X = (X - X.mean(axis=0))/np.maximum(X.std(axis=0), 1e-10)
@@ -345,48 +239,6 @@ def IC50(path='./data/ic50_15drugs_28_percent_missing.npz', ge_flag=False, y_std
   print('process IC50 data')
   return trX, trY, teX, teY
 
-
-def MITV(path='./data/MITV.npz', y_std_flag=False):
-  dat=np.load(path)
-  X = dat['X']
-  y = dat['y']
-  X = (X - X.mean(axis=0))/X.std(axis=0)
-  ids = np.random.permutation(X.shape[0])
-  teN = int(0.2*X.shape[0])
-  te_ids = ids[:teN]
-  tr_ids = ids[teN:]
-  trX = X[tr_ids]
-  trY = y[tr_ids]
-  teX = X[te_ids]
-  teY = y[te_ids]
-  print('process MITV')
-  if y_std_flag:
-    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
-    trY = (trY - mY)/stdY
-    teY = (teY - mY)/stdY
-  return trX, trY, teX, teY
-
-
-
-def PM25(path='./data/pm25.npz', y_std_flag=False):
-  dat=np.load(path)
-  X = dat['X']
-  y = dat['y']
-  X = (X - X.mean(axis=0))/X.std(axis=0)
-  ids = np.random.permutation(X.shape[0])
-  teN = int(0.2*X.shape[0])
-  te_ids = ids[:teN]
-  tr_ids = ids[teN:]
-  trX = X[tr_ids]
-  trY = y[tr_ids]
-  teX = X[te_ids]
-  teY = y[te_ids]
-  print('process PM25')
-  if y_std_flag:
-    mY, stdY = trY.mean(axis=0), trY.std(axis=0)
-    trY = (trY - mY)/stdY
-    teY = (teY - mY)/stdY
-  return trX, trY, teX, teY
 
 
 def parkinson(path='./data/parkinson.npz', target='motor', y_std_flag=False):
