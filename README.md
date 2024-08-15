@@ -38,3 +38,17 @@ Please check synthetic.ipynb for how to run on the two synthetic (Sine and Squar
 
 ## Analysis Code:
 Please check GAR_analysis.ipynb for how to summarize raw output results to the tables and figures reported in the manuscript.
+
+## Citation:
+If you find GAR useful in your work, please cite the following [paper](https://arxiv.org/abs/2402.06104):
+```
+@misc{zhu2024gradientalignedregressionpairwise,
+      title={Gradient Aligned Regression via Pairwise Losses}, 
+      author={Dixian Zhu and Tianbao Yang and Livnat Jerby},
+      year={2024},
+      eprint={2402.06104},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2402.06104}, 
+}
+```
